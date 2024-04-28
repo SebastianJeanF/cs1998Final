@@ -1,6 +1,5 @@
 import json
 from flask import Flask, request
-import dao
 from db import db
 
 # define db filename
