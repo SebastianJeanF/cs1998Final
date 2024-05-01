@@ -22,3 +22,28 @@ def success_response(data, code=200):
 
 def failure_response(message, code=404):
     return json.dumps({"success": False, "error": message}), code
+
+# your routes here
+
+@app.route("/")
+def hello_world():
+    return "Hello, World!"
+
+@app.route("/api/users/", methods=["POST"])
+def create_user():
+    # temporary response
+    return success_response({})
+
+@app.route("/api/users/", methods=["GET"])
+def get_users():
+    # temporary response
+    return success_response({user_name: "John Doe"})
+
+
+
+
+
+# run the app
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
+  
