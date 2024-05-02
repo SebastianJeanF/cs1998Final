@@ -31,13 +31,20 @@ def hello_world():
 
 @app.route("/api/users/", methods=["POST"])
 def create_user():
-    # temporary response
-    return success_response({})
+    # temporary response (Code below isn't correct implementation and just for
+    # testing purposes)
+    body = json.loads(request.data)
+    username = body.get("username")
+    password = body.get("password")
+    if username is None or password is None:
+        return failure_response("Username and password required")
+    return success_response({"username": username, "password": password})
 
 @app.route("/api/users/", methods=["GET"])
 def get_users():
     # temporary response
-    return success_response({user_name: "John Doe"})
+    return success_response({"username": "John Doe", "password": "password"})
+
 
 
 
