@@ -22,3 +22,7 @@ def success_response(data, code=200):
 
 def failure_response(message, code=404):
     return json.dumps({"success": False, "error": message}), code
+
+@app.route("/api/users/")
+def get_all_users():
+    return success_response()
