@@ -67,6 +67,34 @@ def get_users():
     users = [c.serialize() for c in User.query.all()] 
     return success_response(users)
 
+"""
+Returns serialization of an updated user who changed their password
+"""
+@app.route("/api/users/<int:user_id>/update/", methods=["POST"])
+def change_password(user_id):
+    body = json.loads(request.data)
+    password = body.get('password')
+    if password is None:
+        return failure_response("No new password provided", 400)
+
+    user = User.query.get(user_id)
+    if user is None:
+        return failure_response("User not found")
+    user.password = password
+    db.session.commit()
+    return success_response(user.serialize())
+
+"""
+Deletes a user given user_id. If user is not found, returns 404 error code.
+"""
+@app.route("/api/users/<int:user_id>/", methods=["DELETE"])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        return failure_response("User not found")
+    db.session.delete(user)
+    db.session.commit()
+    return success_response(user.serialize())
 
 """
 Check if user with provided username and password exists. If does, then returns serialized form in success response 200, else "no such user" message with 400 code.
@@ -76,10 +104,11 @@ def get_spec_user():
     #assuming the data is being passed in through login fields
     body = json.loads(request.data)
     username = body.get('username')
+    password = body.get('password')
+
     #these checks are in case front-end doesn't handle clicking without filling a field.
     if username is None:
         return failure_response("No username provided", 400)
-    password = body.get('password')
     if password is None:
         return failure_response("No password provided", 400)
     user_val = User.query.filter(User.username==username, User.password==password).first()
