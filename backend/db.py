@@ -74,6 +74,17 @@ class Class(db.Model):
     title = db.Column(db.String, nullable=False)
     decks = db.relationship('Deck', cascade="delete")
  
+    #method to provide 3 hardcoded classes
+    def create_hardcoded_classes():
+        # Check if classes already exist
+        if Class.query.count() == 0:
+            # Create three hardcoded classes
+            class_titles = ['CS 2110', 'CS 3110', 'CS 1998']
+            for title in class_titles:
+                new_class = Class(title=title)
+                db.session.add(new_class)
+            db.session.commit()
+
     def serialize(self):
         return {
             'id': self.id,
