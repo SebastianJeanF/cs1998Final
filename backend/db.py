@@ -2,10 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-# your classes here
-
 # Note: One-to-many relationship from users to decks, classes to decks, and decks to cards
-#Note: db.relationship for "one" scope, and foreign keys for "many" scope
+# Note: db.relationship for "one" scope, and foreign keys for "many" scope
 
 class Deck(db.Model):
     """
@@ -22,8 +20,9 @@ class Deck(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'title': self.title,
             'user_id' : self.user_id,
+            'class_id': self.class_id,
+            'title': self.title,
             'is_public': self.is_public,
             'cards': [card.serialize() for card in self.cards]
         }
@@ -37,7 +36,8 @@ class Card(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.String, nullable=False)
     answer = db.Column(db.String, nullable=False)
-    deck_id = db.Column(db.Integer, db.ForeignKey('decks.id'), nullable=False) #specific foreign key, a column for deck_id indicates id of associated deck.
+    deck_id = db.Column(db.Integer, db.ForeignKey('decks.id'), nullable=False) 
+    # specific foreign key, a column for deck_id indicates id of associated deck.
 
     def serialize(self):
         return {
@@ -74,7 +74,7 @@ class Class(db.Model):
     title = db.Column(db.String, nullable=False)
     decks = db.relationship('Deck', cascade="delete")
  
-    #method to provide 3 hardcoded classes
+    # Method to provide 3 hardcoded classes
     def create_hardcoded_classes():
         # Check if classes already exist
         if Class.query.count() == 0:
@@ -89,5 +89,6 @@ class Class(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'decks': [deck.serialize() for deck in self.decks]
+            # NOTE: We don't serialize decks here since private decks would be 
+            # leaked otherwise
         }
