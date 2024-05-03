@@ -2,6 +2,7 @@ import json
 from flask import Flask, request
 from db import db, User, Card, Deck, Class 
 from flask_sqlalchemy import SQLAlchemy
+from random import choice
 
 # define db filename
 db_filename = "todo.db"
@@ -92,6 +93,7 @@ def get_spec_user():
 #-------CLASSES--------#
 
 
+
 """
 Returns serialization all classes in Class. Note this will return the information of 3 classes of CS 2110, CS 3110, and CS 1998 due to hard-code function
 but additionally associated deck information
@@ -125,6 +127,39 @@ def get_class_decks(user_id, class_id):
 
     serialized_rel_decks = [c.serialize() for c in filter_decks]
     return success_response(serialized_rel_decks)
+
+
+"""
+Returns random quiz mode of 3 cards in each decks within the class
+"""
+@app.route("/api/users/<int:user_id>/classes/<int:class_id>/decks/quiz_mode", methods=["GET"])
+def quiz_mode(class_id, user_id):
+    desired_class = Class.query.get(class_id) #note 0, 1, and 2 class id numbering
+    if desired_class is None:
+        return failure_response("No such class", 400)
+    
+    #we get all public decks within the class or private and owned by this user.
+    filter_decks = Deck.query.filter(
+        (Deck.class_id == class_id) &
+        ((Deck.is_public == True) | ((Deck.is_public == False) & (Deck.user_id == user_id)))
+    ).all()
+
+    # Helper function, the deck itself is passed in, not its id
+    def pick_card_from_deck(deck_val):
+        cards = deck_val.cards
+        card_output = choice(cards) #from random library
+        return card_output.serialize() # want serialized form of card
+
+
+
+    random_card_lot = []
+    for deck_val in filter_decks:
+        for i in range(3): 
+            #we want to pick a random card each iteration -- and add to random_card_lot for each.
+            random_card_lot.append(pick_card_from_deck(deck_val))
+    return success_response(random_card_lot)
+
+
 
 
 
@@ -183,7 +218,6 @@ def change_privacy(deck_id):
 
 
 #--------CARDS--------#
-
 
 """
 Creates a new card given deck_id, question, and answer. 
